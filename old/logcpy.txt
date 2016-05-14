@@ -1,5 +1,0 @@
-D:\msx\Uridium_wip\old\clr1_common.bin
-D:\msx\Uridium_wip\old\clr1_ud.bin
-D:\msx\Uridium_wip\old\clr2_common.bin
-D:\msx\Uridium_wip\old\clr2_ud.bin
-        4 file spostato/i.

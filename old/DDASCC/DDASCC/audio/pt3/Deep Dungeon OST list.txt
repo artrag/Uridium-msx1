@@ -1,8 +1,0 @@
-Deep Dungeon OST list
-
-01. Intro / Demonstration
-02. BGM 1
-03. Found amulet
-04. BGM 2 (with amulet)
-05. Game Over
-06. End / Staff
