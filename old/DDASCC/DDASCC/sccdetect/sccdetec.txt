@@ -1,0 +1,142 @@
+Introduction
+------------
+
+This program detects your SCC cartridge to let you bypass that
+silly question in loaders asking you for this slot. It works
+fine for both expanded and non-expanded slots.
+
+
+
+Files
+-----
+
+SCCDETEC.BIN - Bloadable program
+SCCDETEC.TXT - This textfile
+SCCDETEC.ASM - Assembly source of SCCDETEC.BIN
+
+
+
+How to use it
+-------------
+
+Replace the SCC slot question with these lines
+
+BLOAD "SCCDETEC.BIN",R
+SCC = USR(0)
+
+(Of course you will have to change the variable name SCC into the
+name used in your loader.)
+
+
+
+Detection
+---------
+
+With BLOAD "SCCDETEC.BIN",R the program is loaded. It automatically
+initializes some USR functions and starts the detection. It looks
+into slots 1, 2 and 3 and if you have a slotexpander it will look into
+the subslots. If a SCC was found in one of the subslots, the program
+leaves that particular subslot selected, so the game can use it as
+if it were a primary slot.
+
+
+
+USR functions
+-------------
+
+There are three USR functions:
+
+SCC = USR(0) returns the slot where the SCC was found:
+   0: no SCC detected
+   1: SCC detected in slot 1
+   2: SCC detected in slot 2
+   3: SCC detected in slot 3
+   
+If you have more than one SCC in your computer, the program
+leaves after finding the one in the lowest slot.
+
+In case of subslotdetection you can use USR1(0) to determine the
+subslot. If the subslot was not expanded this function will
+return 255. You probably don't need these values, but you may
+want to show the subslot in your menuprogram?!?
+
+
+
+Restriction
+-----------
+
+SCC games are modified for use with an external SCC, so you
+can load the game into the memory mapper of your computer.
+Slotswitching is done only by switching the primary slot,
+so your SCC must be in another slot than your memory mapper.
+This means you can't have both of them in one slotexpander
+together.
+
+To avoid this conflict, detection is skipped in the slot of
+your memory mapper.
+
+
+
+Slotswitching
+-------------
+
+If the game doesn't ask for the SCC slot, take a look at
+the loader of the game. There will usualy be some POKE's
+to patch the slotswitching routine for use with your
+memory mapper and your SCC.
+
+The POKE's are the values that will be written to the
+slotswitching register (0A8H) to select and deselect the
+SCC. One value will be for the memory in page 1, 2 and 3,
+while the other value is used to switch the SCC in page 2.
+So the only difference between these values will be in
+bits 4 and 5.
+
+These bits contain the slot of your SCC cartridge. In
+most cases it uses a fixed slot. In the expression you
+will see OR 16 for slot 1 and OR 32 for slot 2. Just
+change this into OR (USR(0) * 16) and it should work.
+
+For more info about slotswitching, take a look in some
+MSX technical documentation and search for info about
+the slotselection register (0A8H).
+
+
+
+Subslots
+--------
+
+Some games have their own detection routine. Even in
+those cases it may be useful to run this program anyway,
+because those detection routines probably only look in
+the primary slots.
+
+After you have run this program, the SCC in a secundary
+slot will be visible in the primary slot. Now even
+detection routines only looking in these primary slots
+will be able to find it. Just add BLOAD "SCCDETEC.BIN",R
+to the loader and it should work fine!
+
+
+
+More info
+---------
+
+For more information and/or bug reports contact me
+at the-laut@dds.nl
+
+This program is completely freeware, do with it whatever
+you like. Only don't remove my name from it.
+
+Note: this is only a betaversion, please send bugreports
+and suggestions to me so I can make a better version.
+
+
+
+Credits
+-------
+
+Programming: Jasper Lautenbag
+Testing:     Manuel Bilderbeek
+
+august 20th, 1999

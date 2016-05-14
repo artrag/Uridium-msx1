@@ -1,0 +1,120 @@
+001   0000 FE                          db $fe
+002   0001                             dw  startFile,endFile-1,startProgram
+002   0001 00C051CCA1C0
+003   0007             
+004   0007                             org 0C000h
+005   C000             startFile:
+006   C000                             include datas_depacker.asm
+001+  C000             ; -------------------------------------------------------
+002+  C000             ; MSX-O-Mizer v1.5f datas depacker
+003+  C000             ; Improved from Metalbrain's z80 version.
+004+  C000             ; -------------------------------------------------------
+005+  C000             ; source in hl
+006+  C000             ; dest in de
+007+  C000             
+008+  C000             ; 328 bytes which must be aligned on 8 bits boundary
+009+  C000             mom_map_bits        =       0xe000
+010+  C000             
+011+  C000 D5          mom_depack:         push    de
+012+  C001 FD 21 F0 E0                     ld      iy, mom_map_bits + 0xf0
+013+  C005 06 34                           ld      b, 52
+014+  C007 FD 7D       mom_init_bits:      ld      a, iyl
+015+  C009 E6 0F                           and     15
+016+  C00B 20 03                           jr      nz, mom_node
+017+  C00D 11 01 00                        ld      de, 1
+018+  C010 ED 67       mom_node:           rrd
+019+  C012 FD 77 00                        ld      (iy), a
+020+  C015 FD 73 24                        ld      (iy + 36), e
+021+  C018 FD 72 48                        ld      (iy + 72), d
+022+  C01B FD 2C                           inc     iyl
+023+  C01D 3C                              inc     a
+024+  C01E E5                              push    hl
+025+  C01F 21 00 00                        ld      hl, 0
+026+  C022 37                              scf
+027+  C023 ED 6A       mom_set_bit:        adc     hl, hl
+028+  C025 3D                              dec     a
+029+  C026 20 FB                           jr      nz, mom_set_bit
+030+  C028 19                              add     hl, de
+031+  C029 EB                              ex      de, hl
+032+  C02A E1                              pop     hl
+033+  C02B CB 40                           bit     0, b
+034+  C02D 28 01                           jr      z, mom_wait_step
+035+  C02F 23                              inc     hl
+036+  C030 10 D5       mom_wait_step:      djnz    mom_init_bits
+037+  C032 7E                              ld      a, (hl)
+038+  C033 23                              inc     hl
+039+  C034 DD 67                           ld      ixh, a
+040+  C036 D1                              pop     de
+041+  C037 ED A0       mom_lit_copy:       ldi
+042+  C039 CD 96 C0    mom_main_loop:      call    mom_get_bit
+043+  C03C 38 F9                           jr      c, mom_lit_copy
+044+  C03E 0E EF                           ld      c, -17
+045+  C040 CD 96 C0    mom_get_index:      call    mom_get_bit
+046+  C043 0C                              inc     c
+047+  C044 30 FA                           jr      nc, mom_get_index
+048+  C046 79                              ld      a, c
+049+  C047 C8                              ret     z
+050+  C048 D5                              push    de
+051+  C049 CD 75 C0                        call    mom_get_pair
+052+  C04C C5                              push    bc
+053+  C04D 20 0C                           jr      nz, mom_out_range
+054+  C04F 11 20 02                        ld      de, 0x0220
+055+  C052 0D                              dec     c
+056+  C053 28 09                           jr      z, mom_go_for_it
+057+  C055 11 10 04                        ld      de, 0x0410
+058+  C058 0D                              dec     c
+059+  C059 28 03                           jr      z, mom_go_for_it
+060+  C05B 11 00 04    mom_out_range:      ld      de, 0x0400
+061+  C05E F1          mom_go_for_it:      pop     af
+062+  C05F 08                              ex      af, af'
+063+  C060 CD 87 C0                        call    mom_get_bits
+064+  C063 83                              add     a, e
+065+  C064 CD 75 C0                        call    mom_get_pair
+066+  C067 D1                              pop     de
+067+  C068 E5                              push    hl
+068+  C069 62                              ld      h, d
+069+  C06A 6B                              ld      l, e
+070+  C06B ED 42                           sbc     hl, bc
+071+  C06D 08                              ex      af, af'
+072+  C06E F5                              push    af
+073+  C06F C1                              pop     bc
+074+  C070 ED B0                           ldir
+075+  C072 E1                              pop     hl
+076+  C073 18 C4                           jr      mom_main_loop
+077+  C075 FD 6F       mom_get_pair:       ld      iyl, a
+078+  C077 FD 56 00                        ld      d, (iy)
+079+  C07A CD 87 C0                        call    mom_get_bits
+080+  C07D FD 86 24                        add     (iy + 36)
+081+  C080 4F                              ld      c, a
+082+  C081 78                              ld      a, b
+083+  C082 FD 8E 48                        adc     (iy + 72)
+084+  C085 47                              ld      b, a
+085+  C086 C9                              ret
+086+  C087 01 00 00    mom_get_bits:       ld      bc, 0
+087+  C08A 15          mom_getting_bits:   dec     d
+088+  C08B 79                              ld      a, c
+089+  C08C F8                              ret     m
+090+  C08D CD 96 C0                        call    mom_get_bit
+091+  C090 CB 11                           rl      c
+092+  C092 CB 10                           rl      b
+093+  C094 18 F4                           jr      mom_getting_bits
+094+  C096 DD 7C       mom_get_bit:        ld      a, ixh
+095+  C098 87                              add     a
+096+  C099 20 03                           jr      nz, mom_byte_done
+097+  C09B 7E                              ld      a, (hl)
+098+  C09C 23                              inc     hl
+099+  C09D 17                              rla
+100+  C09E DD 67       mom_byte_done:      ld      ixh, a
+101+  C0A0 C9                              ret
+007   C0A1             startProgram:
+008   C0A1 21 AD C0                    ld  hl,data
+009   C0A4 11 00 90                    ld  de, 09000h
+010   C0A7 CD 00 C0                    call mom_depack
+011   C0AA C3 00 90                    jp 09000h
+012   C0AD             
+013   C0AD             
+014   C0AD             data:
+015   C0AD                             incbin game2k.bin.miz
+016   CC52             
+017   CC52             endFile:
+018   CC52             

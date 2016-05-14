@@ -1,0 +1,13 @@
+Deep Dungeon SFX list
+
+01: stairdwn
+02: stairup
+03: opendoor
+04: chest
+05: coin
+06: powerup
+07: potionsm
+08: potionbg
+09: enehit_1
+10: enehit_2
+11: plyr_hit
