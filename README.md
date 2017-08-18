@@ -1,2 +1,2 @@
 # Uridium-msx1
-Uridium for msx 1 chartridge release
+Uridium for MSX 1 cartridge release
