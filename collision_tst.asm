@@ -245,7 +245,7 @@ CollisionCheck_8b:
         ret                     ; return result                [11]
 .other:
         neg                     ; use negative value           [10]
-        sub     e               ; compare with size 1          [5]
+        sub     e               ; compare with size 2          [5]
         ret                     ; return result                [11]
 
 
